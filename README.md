@@ -1,1 +1,6 @@
-# django-imager
+# Django-Imager
+
+Models:
+ImagerProfile
+Photo
+Album
