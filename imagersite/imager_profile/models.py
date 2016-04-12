@@ -1,14 +1,19 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
+# from django.db.models.signals import post_save
+from django.contrib.auth.models import User
 
 
-class activeProfile(models.Manager):
+class ActiveProfile(models.Manager):
     """Returns only active profiles."""
-    def get_profile(self):
-        query = super(activeProfile, self).get_profile()
-        return query.filter(user__is_actice__exact=True)
+
+    def get_queryset(self):
+        """Return queryset on activate profile."""
+        query = super(ActiveProfile, self).get_queryset()
+        return query.filter(user__is_active__exact=True)
 
 
 PHOTO_TYPES = [
@@ -58,12 +63,14 @@ class ImagerProfile(models.Model):
             max_length=3,
             choices=US_REGIONS
         )
+        objects = models.Manager()
+        active = ActiveProfile()
 
         def __str__(self):
-            pass
-        # def active(self):
-        #     # ImagerProfile.active: provides full query functionality limited to profiles for users who are active (allowed to log in)
+            """String output of profile model."""
+            return "Imager profile for {}".format(self.user)
 
-        # def is_active(self):
-            # profile.is_active: a property which returns a boolean value indicating whether the user associated with the given profile is active
-
+        @property
+        def is_active(self):
+            """Return a boolean value indicating whether the user profile is active."""
+            return self.user.is_active

@@ -16,6 +16,7 @@ def verify_imager_profile(sender, **kwargs):
     if kwargs.get('created', False):
         try:
             new_profile = ImagerProfile(user=kwargs['instance'])
+            new_profile.save()
         except(KeyError, ValueError):
             msg = 'Unable to create ImagerProfile for {}.'
             logger.error(msg.format(kwargs['instance']))
@@ -24,6 +25,7 @@ def verify_imager_profile(sender, **kwargs):
 @receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
 def remove_imager_profile(sender, **kwargs):
     try:
+
         kwargs['insatnce'].profile.delete()
     except (KeyError, AttributeError):
         msg = (
