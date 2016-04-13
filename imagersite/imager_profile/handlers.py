@@ -28,8 +28,5 @@ def remove_imager_profile(sender, **kwargs):
 
         kwargs['insatnce'].profile.delete()
     except (KeyError, AttributeError):
-        msg = (
-            "ImagerProfile instance not deleted for {}."
-            "Perhaps it does no exist?"
-        )
-        logger.warn(msg.foramt(kwargs['instance']))
+        msg = "ImagerProfile instance not deleted for {}."
+        logger.warn(msg.format(kwargs['instance']))

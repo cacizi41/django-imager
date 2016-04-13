@@ -55,20 +55,22 @@ class ImagerProfile(models.Model):
             max_length=128,
             choices=PHOTO_TYPES,
         )
-        friends = models.ManyToManyField(
-            settings.AUTH_USER_MODEL,
-            related_name='friend_of'
+        followers = models.ManyToManyField(
+            "self",
+            symmetrical=False,
+            # profile=settings.AUTH_USER_MODEL,
+            related_name='follower_of'
         )
         region = models.CharField(
-            max_length=3,
+            max_length=30,
             choices=US_REGIONS
         )
         objects = models.Manager()
         active = ActiveProfile()
 
         def __str__(self):
-            """String output of profile model."""
-            return "Imager profile for {}".format(self.user)
+            """Return string output of profile model."""
+            return self.user.username
 
         @property
         def is_active(self):

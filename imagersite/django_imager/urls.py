@@ -15,10 +15,13 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from .views import home_page
+from .views import ClassView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    # $ end of line
+    url(r'^$', home_page, name='home_page'),
+
+    # url(r'^home/(?p<id>[0-9]+)$', home_page, name='home_page'),
 ]
-
-# if settings.DEBUG():
-
