@@ -56,8 +56,8 @@ class TestProfile(TestCase):
 
     def test_add_followers(self):
         """Test followers can be added in one direction."""
-        self.test_user_1.profile.followers.add(self.test_user_2)
-        # self.assertEquals(self.test_user_1.profile.followers.count(), 1)
-        # self.assertEquals(self.test_user_2.profile.followers.count(), 0)
-        # self.assertEquals(self.test_user_2.profile.follower_of.all()[0],
-        #                   self.test_user_1.profile)
+        self.test_user_1.profile.followers.add(self.test_user_2.profile)
+        self.assertEquals(self.test_user_1.profile.followers.count(), 1)
+        self.assertEquals(self.test_user_2.profile.followers.count(), 0)
+        self.assertEquals(self.test_user_2.profile.follower_of.all()[0],
+                          self.test_user_1.profile)

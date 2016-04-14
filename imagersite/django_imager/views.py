@@ -4,6 +4,9 @@ from django.http import HttpResponse
 from django.template import loader
 from django.shortcuts import render, render_to_response
 from django.views.generic import TemplateView
+from registration.forms import RegistrationForm
+from django.contrib.auth.forms import AuthenticationForm
+
 
 
 # def home_page(request, *args, **kwargs):
@@ -15,13 +18,29 @@ from django.views.generic import TemplateView
     #         "".join("\t{}:{}\n".format(key, val) for key, val in kwargs.items())
     # return HttpResponse("Hello!")
 
-def home_page(request, *args, **kwargs):
-    foo = 'garbanzo beans'
-    # body = template.render{{foo:}}
-    return HttpResponse(foo)
+def home_page(request):
+    sign_up_form = RegistrationForm()
+    log_in_form = AuthenticationForm()
+    return render(request, 'home.html', context={
+        'signup': sign_up_form,
+        'login': log_in_form
+    })
 
-class ClassView(TemplateView):
-    template_name = 'home.html'
 
-    def get_context_data(self, num=0, name='balloons'):
-        return {'num': num, 'name': name}
+
+
+
+
+# def log_in(request):
+#     username = request.POST['username']
+#     password = request.POST['password']
+#     user = authenticate(username=username, password=password)
+#     if user is not None:
+#         if user.is_active:
+#             login(request, user)
+#             # Redirect to a success page.
+#         else:
+#             # Return a 'disabled account' error message
+#             ...
+#     else:
+#         # Return an 'invalid login' error message.

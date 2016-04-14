@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>Welcome To Imager</h1>
+{% endblock %}
+
+{% block content %}
+{% load staticfiles %}
+<img src="{% static "dog.jpg" %}" alt="DOG"/>
+
+<h2>Please Login</h2>
+<form action="/" method="post">
+    {% csrf_token %}
+    {{ login }}
+    <input type="submit" value="Submit" />
+</form>
+
+<!-- <button>Login</button> -->
+
+<h2>Or Sign Up</h2>
+<form action="/" method="post">
+    {% csrf_token %}
+    {{ signup }}
+    <input type="submit" value="Submit" />
+</form>
+<!-- <button>Register</button> -->
+{% endblock %}

@@ -13,15 +13,23 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, static, include
+from django.conf import settings
 from django.contrib import admin
 from .views import home_page
-from .views import ClassView
+
+
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     # $ end of line
     url(r'^$', home_page, name='home_page'),
+    url(r'^accounts/', include('registration.backends.simple.urls')),
 
     # url(r'^home/(?p<id>[0-9]+)$', home_page, name='home_page'),
 ]
+
+#if in degud mode, static sets up URL
+# if settings.DEBUG:
+# urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEIDA_ROOT)

@@ -44,6 +44,7 @@ class Photo(models.Model):
     date_uploaded = models.DateTimeField(auto_now_add=True)
     privacy = models.CharField(max_length=128, choices=PRIVACY_SETTINGG)
 
+
     def __str__(self):
         """String output of photo instance."""
         return self.title
@@ -65,6 +66,7 @@ class Album(models.Model):
     album_title = models.CharField(max_length=255)
     album_description = models.TextField()
     date_created = models.DateTimeField()
+    # photo = models.ManytoManyField('self', related_name='photo_in')
 
     def __str__(self):
         """String output of photo instance."""
