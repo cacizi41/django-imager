@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 
 
 PHOTO_TYPES = [
@@ -20,18 +20,20 @@ PHOTO_TYPES = [
     ('special', 'Special')
 ]
 
-PRIVACY_SETTINGG = [
+PRIVACY_SETTING = [
     ('private', 'Private'),
     ('public', 'Public'),
     ('shared', 'Shared')
-]# 1st in db, 2nd dispaly
+]
 
 
 DATE_FORMAT = '%d %B %Y %I:%M%p'
 
+
 @python_2_unicode_compatible
 class Photo(models.Model):
     """Photo attributes."""
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -40,10 +42,10 @@ class Photo(models.Model):
     title = models.CharField(max_length=128)
     description = models.TextField()
     genre = models.CharField(max_length=128, choices=PHOTO_TYPES)
-    image = models.ImageField()# upload_to='photo_file'
+    img_file = models.ImageField(upload_to='img_file')
     date_uploaded = models.DateTimeField(auto_now_add=True)
-    privacy = models.CharField(max_length=128, choices=PRIVACY_SETTINGG)
-
+    # albums = models.ManyToManyField('Album', related_name='contain_photo')
+    privacy = models.CharField(max_length=128, choices=PRIVACY_SETTING, default='Public')
 
     def __str__(self):
         """String output of photo instance."""
@@ -53,28 +55,23 @@ class Photo(models.Model):
 @python_2_unicode_compatible
 class Album(models.Model):
     """Collection of photoes in database."""
+
     album_owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        # if user deleted,delete album too.
         related_name='album',
     )
     album_cover = models.ForeignKey(
         'Photo',
-        related_name='covered_albums',
+        related_name='cover_of',
+        null=True
     )
     album_title = models.CharField(max_length=255)
     album_description = models.TextField()
-    date_created = models.DateTimeField()
-    # photo = models.ManytoManyField('self', related_name='photo_in')
+    date_created = models.DateTimeField(auto_now_add=True)
+    contain_photo = models.ManyToManyField('Photo', related_name='albums')
+    privacy = models.CharField(max_length=128, choices=PRIVACY_SETTING, default='Public')
 
     def __str__(self):
         """String output of photo instance."""
         return self.album_title
-
-    # def set_cover(self, photo):
-    #     """Set selected photo as album cover."""
-
-    # def owned_photos(self, photos):
-
-    # def add_photos(self, photo):

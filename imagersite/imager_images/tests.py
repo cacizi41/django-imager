@@ -1,105 +1,134 @@
-# from __future__ import unicode_literals
-# from django.test import TestCase
-# from .models import Photo, Album
-# from django.db.models import ImageField
-# from django.db.models.fields.files import ImageFieldFile
-# from django.contrib.auth.models import User
-# import factory
+# -*- coding: utf-8 -*-
+from django.db.models.fields.files import ImageFieldFile
+from django.test import TestCase, override_settings
+from .models import Photo, Album, PRIVACY_SETTING
+from django.conf import settings
+from django.contrib.auth.models import User
+import factory
+import random
+
+TEMP_MEDIA_ROOT = '/tmp/media/'
 
 
-# class PhotoFactory(factory.django.DjangoModelFactory):
-#     """Create Photo model for test."""
+class UserFactory(factory.django.DjangoModelFactory):
+    """Create Users."""
 
-#     class Meta:
-#         """Assign Photo model as product of factory."""
+    class Meta:
 
-#         model = Photo
+        model = settings.AUTH_USER_MODEL
+        django_get_or_create = ('username',)
 
-
-# class AlbumFactory(factory.django.DjangoModelFactory):
-#     """Create Album model for test."""
-
-#     class Meta:
-#         """Assign Album model as product of factory."""
-
-#         model = Album
+    first_name = factory.Faker('first_name')
+    last_name = factory.Faker('last_name')
+    email = factory.Faker('email')
+    username = factory.LazyAttribute(
+        lambda obj: ''.join((obj.first_name, obj.last_name)))
+    password = factory.PostGenerationMethodCall('set_password', 'password')
 
 
-# class TestPhoto(TestCase):
-#     """Test Albums and Images and their relationships."""
-#     def setUp(self):
-#         self.test_user_1 = User.objects.create_user('testuser',
-#                                                     'test@email.com',
-#                                                     'testpassword')
-#         self.test_album_1 = AlbumFactory.create(album_title='album 1', owner=self.test_user_1)
-#         # self.album2 = Album(title='album 2', owner=self.test_user1)
-#         self.test_photo_1 = PhotoFactory.create(title='photo 1', owner=self.test_user_1)
-#         # self.image2 = PhotoFactory.create(title='image 2',
-#         #                                   owner=self.test_user1)
-#         self.test_album_1.save()
-#         self.test_photo_1.save()
-#         self.test_photo_1.albums.add(self.test_album_1)
+class PhotoFactory(factory.django.DjangoModelFactory):
+    """Create Photos."""
 
-#     def test_album_exists(self):
-#         """Test album has been created."""
-#         self.assertIsInstance(self.test_album_1, Album)
+    class Meta:
+        model = Photo
 
-#     # def test_image_exists(self):
-#     #     """Test image has been created."""
-#     #     self.assertIsInstance(self.image1, Image)
+    title = factory.Faker('sentence')
+    user = factory.SubFactory(UserFactory, username='factoryuser')
+    img_file = factory.django.ImageField()
+    privacy = random.choice(PRIVACY_SETTING)
 
-#     # def test_album_title(self):
-#     #     """Test album has title."""
-#     #     self.assertEquals(self.album1.title, 'album 1')
 
-#     # def test_image_title(self):
-#     #     """Test image has title."""
-#     #     self.assertEquals(self.image1.title, 'image 1')
+class AlbumFactory(factory.django.DjangoModelFactory):
+    """Create Albums."""
 
-#     # def test_album_default_description(self):
-#     #     """Test album default description is empty string."""
-#     #     self.assertEquals(self.album1.description, '')
+    class Meta:
+        model = Album
 
-#     # def test_image_default_description(self):
-#     #     """Test image default description is empty string."""
-#     #     self.assertEquals(self.image1.description, '')
+    album_title = factory.Faker('sentence')
+    album_description = factory.Faker('sentence')
+    privacy = random.choice(PRIVACY_SETTING)
+    album_owner = factory.SubFactory(UserFactory, username='factoryuser')
 
-#     # def test_album_date_uploaded(self):
-#     #     """Test to verify date for date uploaded on album."""
-#     #     self.assertIsInstance(self.album1.date_uploaded, datetime)
 
-#     # def test_image_date_uploaded(self):
-#     #     """Test to verify date for date uploaded on image."""
-#     #     self.assertIsInstance(self.image1.date_uploaded, datetime)
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
+class Photo(TestCase):
+    """Test photo instance."""
 
-#     # def test_album_date_modified(self):
-#     #     """Test to verify the date changes upon modification."""
-#     #     initial = self.image1.date_modified
-#     #     self.assertEquals(initial, self.image1.date_modified)
-#     #     self.image1.title = 'new title'
-#     #     self.image1.save()
-#     #     self.assertNotEqual(initial, self.image1.date_modified)
+    def setUp(self):
+        """Initiate Photo instance."""
+        self.instance = PhotoFactory.create()
 
-#     # def test_image_in_album(self):
-#     #     """Test to verify that image can be in album."""
-#     #     self.assertEquals(self.album1.images.all()[0], self.image1)
+    def test_empty_album(self):
+        """Test Photo has no albums."""
+        self.assertFalse(self.instance.albums.count())
 
-#     # def test_images_have_owner(self):
-#     #     """Test to verify that images have owners."""
-#     #     self.assertEquals(self.image1.owner, self.test_user1)
+    def test_img_file_exists(self):
+        """Test img_file exists."""
+        self.assertTrue(self.instance.img_file)
 
-#     # def test_albums_have_owner(self):
-#     #     """Test to verify that albums have owners."""
-#     #     self.assertEquals(self.album1.owner, self.test_user1)
+    def test_img_file_type(self):
+        """Test img file type correct."""
+        self.assertIsInstance(self.instance.img_file, ImageFieldFile)
 
-#     # def test_user_has_albums(self):
-#     #     """Test to verify that user has albums."""
-#     #     self.assertEquals(self.test_user1.albums.all().count(), 2)
+    def test_privacy(self):
+        """Test published generated."""
+        self.assertTrue(self.instance.privacy)
 
-#     # def test_user_has_images(self):
-#     #     """Test to verify that user has images."""
-#     #     self.assertEquals(self.test_user1.images.all().count(), 2)
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
+class Album(TestCase):
+    """Test Album instance."""
 
-#     # def test_image_has_image(self):
-#     #     """Test to verify image has been created with an image."""
-#     #     self.assertIsInstance(self.image1.photo, ImageFieldFile)
+    def setUp(self):
+        """Initiate Album."""
+        self.instance = AlbumFactory.create()
+
+    def test_user(self):
+        """Test owner generated."""
+        self.assertTrue(self.instance.album_owner)
+
+    def test_title(self):
+        """Test title generated."""
+        self.assertTrue(self.instance.album_title)
+
+    def test_description(self):
+        """Test description generated."""
+        self.assertTrue(self.instance.album_description)
+
+    def test_empty_album(self):
+        """Test album has no photos."""
+        self.assertFalse(self.instance.contain_photo.count())
+
+    def test_privacy(self):
+        """Test published generated."""
+        self.assertTrue(self.instance.privacy)
+
+
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
+class PhotosAlbum(TestCase):
+    """A Lot of photos, one album."""
+
+    def setUp(self):
+        """Create photos and albums."""
+        self.photos = PhotoFactory.create_batch(50)
+        self.album1 = AlbumFactory.create()
+        self.album2 = AlbumFactory.create()
+
+        for photo in self.photos:
+            self.album1.contain_photo.add(photo)
+
+    def test_album_size(self):
+        """Test photos in album."""
+        self.assertEquals(self.album1.contain_photo.count(), 50)
+
+    def test_owner_match(self):
+        """Test owner is correct."""
+        for photo in self.photos:
+            self.assertEquals(photo.user, self.album1.album_owner)
+
+    def test_photos_in_multiple_albums(self):
+        """Test photos are in multiple albums."""
+        for photo in self.photos:
+            self.album2.contain_photo.add(photo)
+        for photo in self.photos:
+            self.assertIn(photo, self.album1.contain_photo.all())
+            self.assertIn(photo, self.album2.contain_photo.all())
