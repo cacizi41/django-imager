@@ -38,14 +38,15 @@ class Photo(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='photo',
+        null=True, blank=True
     )
-    title = models.CharField(max_length=128)
-    description = models.TextField()
+    title = models.CharField(default='', max_length=128, null=True, blank=True)
+    description = models.TextField(default='', max_length=255, null=True, blank=True)
     genre = models.CharField(max_length=128, choices=PHOTO_TYPES)
     img_file = models.ImageField(upload_to='img_file')
     date_uploaded = models.DateTimeField(auto_now_add=True)
-    # albums = models.ManyToManyField('Album', related_name='contain_photo')
     privacy = models.CharField(max_length=128, choices=PRIVACY_SETTING, default='Public')
+    # in_album = md.ManyToManyField('Album', related_name='photos')
 
     def __str__(self):
         """String output of photo instance."""
@@ -60,14 +61,10 @@ class Album(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='album',
-    )
-    album_cover = models.ForeignKey(
-        'Photo',
-        related_name='cover_of',
         null=True
     )
-    album_title = models.CharField(max_length=255)
-    album_description = models.TextField()
+    album_title = models.CharField(max_length=255, null=True, blank=True)
+    album_description = models.TextField(null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
     contain_photo = models.ManyToManyField('Photo', related_name='albums')
     privacy = models.CharField(max_length=128, choices=PRIVACY_SETTING, default='Public')
