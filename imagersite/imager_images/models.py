@@ -45,6 +45,8 @@ class Photo(models.Model):
     genre = models.CharField(max_length=128, choices=PHOTO_TYPES)
     img_file = models.ImageField(upload_to='img_file')
     date_uploaded = models.DateTimeField(auto_now_add=True)
+    date_published = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     privacy = models.CharField(max_length=128, choices=PRIVACY_SETTING, default='Public')
     # in_album = md.ManyToManyField('Album', related_name='photos')
 
@@ -66,6 +68,8 @@ class Album(models.Model):
     album_title = models.CharField(max_length=255, null=True, blank=True)
     album_description = models.TextField(null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
+    date_published = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     contain_photo = models.ManyToManyField('Photo', related_name='albums')
     privacy = models.CharField(max_length=128, choices=PRIVACY_SETTING, default='Public')
 
